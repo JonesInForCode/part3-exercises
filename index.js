@@ -45,13 +45,32 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const personId = parseInt(request.params.id)
+    const personId = Number(request.params.id)
     const findPerson = persons.find(person => person.id === personId)
 
     if(findPerson) {
         response.json(findPerson)
     }
     response.status(404).send({ message: 'person not found'})
+})
+
+app.delete('/api/persons/:id', (request, response) => {
+    const id = Number(request.params.id);
+    const index = persons.findIndex(person => person.id === id);
+  
+    if (index !== -1) {
+      persons.splice(index, 1);
+      response.sendStatus(200); // Success
+    } else {
+      response.sendStatus(404); // Not Found
+    }
+  });
+  
+
+app.post('/api/persons', (request, response) => {
+    const person = request.body
+    console.log(person)
+    response.json(person)
 })
 
 const PORT = 3001
