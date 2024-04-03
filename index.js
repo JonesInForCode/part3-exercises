@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+app.use(express.json())
 
 let persons = [
         {
@@ -28,6 +29,12 @@ const links = [
     'http://localhost:3001',
 ]
 
+const crypto = require('crypto');
+
+function generateUniqueID() {
+  return crypto.randomUUID();
+}
+
 app.get('/', (request, response) => {
     response.send(`<a href='http://localhost:3001/api/persons'>Go to persons database</a>`)
 }
@@ -45,7 +52,7 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const personId = Number(request.params.id)
+    const personId = request.params.id
     const findPerson = persons.find(person => person.id === personId)
 
     if(findPerson) {
@@ -56,21 +63,25 @@ app.get('/api/persons/:id', (request, response) => {
 
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id);
-    const index = persons.findIndex(person => person.id === id);
-  
-    if (index !== -1) {
-      persons.splice(index, 1);
-      response.sendStatus(200); // Success
-    } else {
-      response.sendStatus(404); // Not Found
-    }
+    persons.filter(person => person.id !== id)
+
+    response.json(persons)
   });
   
 
 app.post('/api/persons', (request, response) => {
-    const person = request.body
-    console.log(person)
-    response.json(person)
+    const body = request.body;
+
+    const newPerson = {
+        id: generateUniqueID(),
+        name: body.name,
+        number: body.number
+    }
+
+    persons = persons.concat(newPerson)
+  
+    console.log(newPerson);
+    response.json(persons);
 })
 
 const PORT = 3001
