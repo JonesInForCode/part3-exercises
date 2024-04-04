@@ -1,8 +1,10 @@
-const express = require('express')
+require('dotenv').config()
 const morgan = require('morgan')
 const cors = require('cors')
 const crypto = require('crypto');
 const app = express()
+
+const baseUrl = process.env.BASE_URL
 
 app.use(express.static('dist'))
 
@@ -39,10 +41,6 @@ function generateUniqueID() {
   return crypto.randomUUID();
 }
 
-const links = [
-    'http://localhost:3001',
-]
-
 const requestBodyLog = (request, response, next) => {
     console.log('Request Body:', request.body)
     next()
@@ -67,7 +65,7 @@ const unknownEndpoint = (request, response) => {
 const path = require('path')
 
 app.get('/', (request, response) => {
-    response.send(`<a href='http://localhost:3001/api/persons'>Go to persons database</a>`)
+    response.send(`${baseUrl}/api/persons`)
 }
     )
 
