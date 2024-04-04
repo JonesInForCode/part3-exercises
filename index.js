@@ -1,6 +1,11 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
-app.use(express.json())
+
+const options = {
+    limit: '1kb',
+    stream: process.stdout
+}
 
 let persons = [
         {
@@ -29,7 +34,29 @@ const links = [
     'http://localhost:3001',
 ]
 
+const requestBodyLog = (request, response, next) => {
+    console.log('Request Body:', request.body)
+    next()
+}
+
+const requestLogger = (request, response, next) => {
+    console.log('Method:', request.method)
+    console.log('Path:', request.path)
+    console.log('Body:', request.body)
+    console.log('---')
+    next()
+}
+
+app.use(express.json())
+app.use(requestBodyLog)
+app.use(morgan(':method :url :status :response-time ms'))
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({error: "unknown endpoint"})
+}
+
 const crypto = require('crypto');
+const path = require('path')
 
 function generateUniqueID() {
   return crypto.randomUUID();
@@ -52,13 +79,13 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const personId = request.params.id
+    const personId = Number(request.params.id)
     const findPerson = persons.find(person => person.id === personId)
 
-    if(findPerson) {
-        response.json(findPerson)
+    if(!findPerson) {
+        response.status(404).send({ message: 'person not found'})
     }
-    response.status(404).send({ message: 'person not found'})
+    response.json(findPerson)
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -78,11 +105,19 @@ app.post('/api/persons', (request, response) => {
         number: body.number
     }
 
-    persons = persons.concat(newPerson)
+    if (persons.find(person => body.name === person.name) || persons.find(person => body.number === person.number)) {
+        response.status(400).send({ message: 'Duplicate entry'})
+    } else if (!body || !body.name || !body.number) {
+        response.status(400).send({ message: "empty value found in posted data"})
+    } else {
+        persons = persons.concat(newPerson)
   
-    console.log(newPerson);
-    response.json(persons);
+        console.log(newPerson);
+        response.json(persons);
+    }
 })
+
+app.use(unknownEndpoint)
 
 const PORT = 3001
 app.listen(PORT, () => {
