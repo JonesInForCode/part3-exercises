@@ -4,6 +4,9 @@ const cors = require('cors')
 const crypto = require('crypto');
 const app = express()
 
+app.use(express.static('dist'))
+
+
 const options = {
     limit: '1kb',
     stream: process.stdout
