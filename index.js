@@ -90,10 +90,15 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = JSON.stringify(request.params.id);
-    persons.filter(person => person.id !== id)
-
-    response.json(persons)
+    const id = request.params.id;
+    const personIndex = persons.findIndex(person => person.id === id);
+  
+    if (personIndex !== -1) {
+      persons.splice(personIndex, 1); // Remove element at specified index
+      response.json({ message: 'Person deleted successfully' }); // Optional success message
+    } else {
+      response.status(404).send({ message: 'Person not found' }); // Error handling for non-existent ID
+    }
   });
   
 
@@ -116,6 +121,18 @@ app.post('/api/persons', (request, response) => {
         console.log(newPerson);
         response.json(persons);
     }
+})
+
+app.put('/api/persons/:id', (request, response) => {
+    const body = request.body;
+
+    const updatePerson = {
+        ...body,
+        name: body.name,
+        number: body.number
+    }
+
+
 })
 
 app.use(unknownEndpoint)
