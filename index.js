@@ -1,5 +1,7 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
+const crypto = require('crypto');
 const app = express()
 
 const options = {
@@ -9,26 +11,30 @@ const options = {
 
 let persons = [
         {
-           "id": 1,
+           "id": generateUniqueID(),
             "name": "Arto Hellas",
             "number": "040-123456"
         },
         {
-            "id": 2,      
+            "id": generateUniqueID(),      
             "name": "Ada Lovelace",       
             "number": "39-44-5323523"    
         },    
         {       
-            "id": 3,      
+            "id": generateUniqueID(),      
             "name": "Dan Abramov",      
             "number": "12-43-234345"    
         },    
         {     
-            "id": 3,
+            "id": generateUniqueID(),
             "name": "Bilbo Baggins",
             "number": "12-34-56789"
         }
     ]
+
+function generateUniqueID() {
+  return crypto.randomUUID();
+}
 
 const links = [
     'http://localhost:3001',
@@ -46,7 +52,7 @@ const requestLogger = (request, response, next) => {
     console.log('---')
     next()
 }
-
+app.use(cors())
 app.use(express.json())
 app.use(requestBodyLog)
 app.use(morgan(':method :url :status :response-time ms'))
@@ -55,12 +61,7 @@ const unknownEndpoint = (request, response) => {
     response.status(404).send({error: "unknown endpoint"})
 }
 
-const crypto = require('crypto');
 const path = require('path')
-
-function generateUniqueID() {
-  return crypto.randomUUID();
-}
 
 app.get('/', (request, response) => {
     response.send(`<a href='http://localhost:3001/api/persons'>Go to persons database</a>`)
@@ -79,7 +80,7 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const personId = Number(request.params.id)
+    const personId = JSON.stringify(request.params.id)
     const findPerson = persons.find(person => person.id === personId)
 
     if(!findPerson) {
@@ -89,7 +90,7 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id);
+    const id = JSON.stringify(request.params.id);
     persons.filter(person => person.id !== id)
 
     response.json(persons)
