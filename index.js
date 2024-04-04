@@ -1,4 +1,5 @@
 require('dotenv').config()
+const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 const crypto = require('crypto');
@@ -7,6 +8,7 @@ const app = express()
 const baseUrl = process.env.BASE_URL
 
 app.use(express.static('dist'))
+
 
 
 const options = {
