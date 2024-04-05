@@ -1,8 +1,1 @@
-POST    https://part3-exercises-ywt7.onrender.com/api/persons
-Content-Type: application/json
-
-{
-    "name": "Arto Helgass",
-    "number": "123456789"
-}
-
+GET    https://localhost:3001/api/persons
