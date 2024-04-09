@@ -4,17 +4,27 @@ const morgan = require('morgan')
 const cors = require('cors')
 const crypto = require('crypto');
 const app = express()
+const mongoose = require('mongoose')
 
 const baseUrl = process.env.BASE_URL
+const mongoPwd = process.env.MONGO_PWD
+const mongoUrl = `mongodb+srv://sinisterthought:${mongoPwd}@cluster0.wd7qv5o.mongodb.net/contactsApp?retryWrites=true&w=majority`
 
 app.use(express.static('dist'))
-
-
 
 const options = {
     limit: '1kb',
     stream: process.stdout
 }
+
+mongoose.connect(mongoUrl)
+
+const contactSchema = new mongoose.Schema({
+    name: String,
+    number: String,
+})
+
+const Contact = mongoose.model('Contact', contactSchema)
 
 let persons = [
         {
