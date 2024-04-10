@@ -8,7 +8,7 @@ const mongoose = require('mongoose')
 
 const baseUrl = process.env.BASE_URL
 const mongoPwd = process.env.MONGO_PWD
-const mongoUrl = `mongodb+srv://sinisterthought:${mongoPwd}@cluster0.wd7qv5o.mongodb.net/contactsApp?retryWrites=true&w=majority`
+const mongoUrl = `mongodb+srv://sinisterthought:Herxi4L4HpvqIomW@cluster0.wd7qv5o.mongodb.net/contactsApp?retryWrites=true&w=majority`
 
 app.use(express.static('dist'))
 
