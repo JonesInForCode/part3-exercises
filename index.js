@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 require('dotenv').config()
 
-const Contact = require('./models/person')
+const Person = require('./models/person')
 
 let contacts = []
 
@@ -32,8 +32,8 @@ const unknownEndpoint = (request, response) => {
 }
 
 app.get('/api/persons', (request, response) => {
-    Person.find({}).then(contacts => {
-        response.json(contacts)
+    Person.find({}).then(persons => {
+        response.json(persons)
     })
 })
 
@@ -44,25 +44,25 @@ app.post('/api/persons', (request, response) => {
         return response.status(400).json({ error: 'content missing' })
     }
 
-    const contact = new Contact({
+    const person = new Person({
         name: body.content,
         number: body.content
     })
 
-    contact.save().then(savedContact => {
-        response.json(savedContact)
+    person.save().then(savedPerson => {
+        response.json(savedPerson)
     })
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    Contact.findById(request.params.id).then(contact => {
-        response.json(contact)
+    Person.findById(request.params.id).then(person => {
+        response.json(person)
     })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
-    contacts = contacts.filter(contact => contact.id !== id)
+    persons = persons.filter(person => person.id !== id)
 
     response.status(204).end()
 })
