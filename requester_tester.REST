@@ -1,1 +1,1 @@
-GET https://part3-exercises-ywt7.onrender.com
+GET mongodb+srv://sinisterthought:mongoober@cluster0.wd7qv5o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
