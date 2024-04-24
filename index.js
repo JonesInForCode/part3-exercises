@@ -1,10 +1,7 @@
-require('dotenv').config()
 const express = require('express')
-const morgan = require('morgan')
-const cors = require('cors')
-const crypto = require('crypto');
 const app = express()
-const mongoose = require('mongoose')
+const config = require('./config')
+const mongoose = require('./models/person')
 
 const baseUrl = process.env.BASE_URL
 const mongoPwd = process.env.MONGO_PWD
