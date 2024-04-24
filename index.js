@@ -31,13 +31,13 @@ const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
 }
 
-app.get('/api/contacts', (request, response) => {
+app.get('/api/persons', (request, response) => {
     Person.find({}).then(contacts => {
         response.json(contacts)
     })
 })
 
-app.post('/api/contacts', (request, response) => {
+app.post('/api/persons', (request, response) => {
     const body = request.body
 
     if(body.content === undefined) {
@@ -54,13 +54,13 @@ app.post('/api/contacts', (request, response) => {
     })
 })
 
-app.get('/api/contacts/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response) => {
     Contact.findById(request.params.id).then(contact => {
         response.json(contact)
     })
 })
 
-app.delete('/api/contacts/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
     contacts = contacts.filter(contact => contact.id !== id)
 
