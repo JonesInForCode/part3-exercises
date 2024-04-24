@@ -24,4 +24,4 @@ mongoose.connect(url)
         }
     })
 
-    module.exports = mongoose.model('Contact', contactSchema)
+    module.exports = mongoose.model('Person', personSchema)
