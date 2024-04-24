@@ -1,11 +1,10 @@
 const express = require('express')
 const app = express()
-const config = require('./config')
-const mongoose = require('./models/person')
+require('dotenv').config()
 
-const baseUrl = process.env.BASE_URL
-const mongoPwd = process.env.MONGO_PWD
-const mongoUrl = `mongodb+srv://sinisterthought:Herxi4L4HpvqIomW@cluster0.wd7qv5o.mongodb.net/contactsApp?retryWrites=true&w=majority`
+const Contact = require('./models/person')
+
+let contacts = []
 
 app.use(express.static('dist'))
 
@@ -14,137 +13,58 @@ const options = {
     stream: process.stdout
 }
 
-mongoose.connect(mongoUrl)
-
-const contactSchema = new mongoose.Schema({
-    name: String,
-    number: String,
-})
-
-const Contact = mongoose.model('Contact', contactSchema)
-
-let persons = [
-        {
-           "id": generateUniqueID(),
-            "name": "Arto Hellas",
-            "number": "040-123456"
-        },
-        {
-            "id": generateUniqueID(),      
-            "name": "Ada Lovelace",       
-            "number": "39-44-5323523"    
-        },    
-        {       
-            "id": generateUniqueID(),      
-            "name": "Dan Abramov",      
-            "number": "12-43-234345"    
-        },    
-        {     
-            "id": generateUniqueID(),
-            "name": "Bilbo Baggins",
-            "number": "12-34-56789"
-        }
-    ]
-
-function generateUniqueID() {
-  return crypto.randomUUID();
-}
-
-const requestBodyLog = (request, response, next) => {
-    console.log('Request Body:', request.body)
-    next()
-}
-
 const requestLogger = (request, response, next) => {
     console.log('Method:', request.method)
-    console.log('Path:', request.path)
-    console.log('Body:', request.body)
+    console.log('Path: ', request.path)
+    console.log('Body: ', request.body)
     console.log('---')
     next()
 }
+
+const cors = require('cors')
+
 app.use(cors())
 app.use(express.json())
-app.use(requestBodyLog)
-app.use(morgan(':method :url :status :response-time ms'))
+app.use(requestLogger)
 
 const unknownEndpoint = (request, response) => {
-    response.status(404).send({error: "unknown endpoint"})
+    response.status(404).send({ error: 'unknown endpoint' })
 }
 
-const path = require('path')
-
-app.get('/', (request, response) => {
-    response.send(`${baseUrl}/api/persons`)
-}
-    )
-
-
-app.get('/api/persons', (request, response) => {
-    Contact.find({}).then(contacts => {
+app.get('/api/contacts', (request, response) => {
+    Person.find({}).then(contacts => {
         response.json(contacts)
     })
 })
 
-app.get('/info', (request, response) => {
-    const date = new Date()
-    const dbCount = persons && persons.length
-    response.json({ "Date": date, "Items": dbCount })
+app.post('/api/contacts', (request, response) => {
+    const body = request.body
+
+    if(body.content === undefined) {
+        return response.status(400).json({ error: 'content missing' })
+    }
+
+    const contact = new Contact({
+        name: body.content,
+        number: body.content
+    })
+
+    contact.save().then(savedContact => {
+        response.json(savedContact)
+    })
 })
 
-app.get('/api/persons/:id', (request, response) => {
-    const personId = JSON.stringify(request.params.id)
-    const findPerson = persons.find(person => person.id === personId)
-
-    if(!findPerson) {
-        response.status(404).send({ message: 'person not found'})
-    }
-    response.json(findPerson)
+app.get('/api/contacts/:id', (request, response) => {
+    Contact.findById(request.params.id).then(contact => {
+        response.json(contact)
+    })
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-    const id = request.params.id;
-    const personIndex = persons.findIndex(person => person.id === id);
-  
-    if (personIndex !== -1) {
-      persons.splice(personIndex, 1); // Remove element at specified index
-      response.json({ message: 'Person deleted successfully' }); // Optional success message
-    } else {
-      response.status(404).send({ message: 'Person not found' }); // Error handling for non-existent ID
-    }
-  });
-  
+app.delete('/api/contacts/:id', (request, response) => {
+    const id = Number(request.params.id)
+    contacts = contacts.filter(contact => contact.id !== id)
 
-app.post('/api/persons', (request, response) => {
-    const body = request.body;
-
-    const newPerson = {
-        id: generateUniqueID(),
-        name: body.name,
-        number: body.number
-    }
-
-    if (persons.find(person => body.name === person.name) || persons.find(person => body.number === person.number)) {
-        response.status(400).send({ message: 'Duplicate entry'})
-    } else if (!body || !body.name || !body.number) {
-        response.status(400).send({ message: "empty value found in posted data"})
-    } else {
-        persons = persons.concat(newPerson)
-  
-        console.log(newPerson);
-        response.json(persons);
-    }
-})
-
-app.put('/api/persons/:id', (request, response) => {
-    const body = request.body;
-
-    const updatePerson = {
-        ...body,
-        name: body.name,
-        number: body.number
-    }
-
-
+    response.status(204).end()
 })
 
 app.use(unknownEndpoint)
