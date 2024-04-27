@@ -1,1 +1,7 @@
 GET mongodb+srv://sinisterthought:mongoober@cluster0.wd7qv5o.mongodb.net/contactsApp/contacts?retryWrites=true&w=majority&appName=Cluster0
+Content-Type: application/json
+
+{
+    "content": "This is a test",
+    "important": false
+}
